@@ -1,0 +1,11 @@
+{
+  "name": "hubaccounts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kho tài khoản mã hoá HubAccounts và máy chủ xem trước cục bộ",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/server.test.js test/app-files.test.js"
+  }
+}

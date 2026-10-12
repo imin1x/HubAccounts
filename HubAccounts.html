@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HubAccounts</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<script>
+// Every page load starts dark, including the lock screen.
+document.documentElement.dataset.theme = 'dark';
+document.querySelector('meta[name="theme-color"]').content = '#000000';
+</script>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HubAccounts">
+<link id="externalIconsCss" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<link id="externalFontCss" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="hubaccounts.css">
+</head>
+<body>
+<div class="ide-shell">
+  <div class="ide-titlebar">
+    <div class="titlebar-clock" id="titlebarClock" title="Giờ hệ thống">
+      <span class="titlebar-clock-time" id="clockTime">--:--:--</span>
+      <span class="titlebar-clock-date" id="clockDate">--/--/----</span>
+    </div>
+    <div class="titlebar-search" id="titlebarSearchWrap" style="display:none;">
+      <i class="ti ti-search"></i>
+      <input type="text" id="globalSearchInput" placeholder="Tìm kiếm...">
+    </div>
+    <div class="ide-lang-switch" id="langSwitch">
+      <button type="button" class="ide-lang-btn" data-lang="vi">VN</button>
+      <button type="button" class="ide-lang-btn" data-lang="en">EN</button>
+    </div>
+    <button type="button" class="ide-theme-toggle" id="themeToggleBtn" title="Chuyển đổi giao diện Sáng / Tối"><i class="ti ti-sun" id="themeToggleIcon"></i></button>
+    <button type="button" class="ide-sidebar-toggle" id="sidebarToggleBtn" title="Menu"><i class="ti ti-menu-2"></i></button>
+    <button type="button" class="ide-rightpanel-toggle" id="rightPanelToggleBtn" title="System / Time / Network"><i class="ti ti-info-circle"></i></button>
+  </div>
+  <div class="ide-body">
+    <aside class="ide-sidebar" id="platformBar"></aside>
+    <main class="ide-main">
+      <div class="ide-breadcrumb" id="ideBreadcrumb"><span class="crumb-app">&nbsp;</span><span class="crumb-current">HubAccounts</span></div>
+      <div class="ide-content-wrap">
+        <div id="app"></div>
+      </div>
+    </main>
+    <aside class="ide-rightpanel" id="sidePanel">
+      <div class="side-section session-section" id="sessionClock">
+        <div class="code-comment" style="font-size:11px; margin-bottom:6px;">System</div>
+        <div class="session-login" id="sessionLogin">Đăng nhập lúc --:--:--</div>
+        <div class="session-active" id="sessionActive">00:00:00</div>
+        <div class="session-hint">Tự đăng xuất sau 30 phút không hoạt động</div>
+      </div>
+      <div class="side-section">
+        <div class="code-comment" style="font-size:11px; margin-bottom:6px;">Network</div>
+        <div class="network-row">
+          <span class="network-label"><i class="ti ti-wifi"></i> Kết nối Internet</span>
+        </div>
+        <div class="network-ip" id="networkIpText">Đang kiểm tra mạng...</div>
+      </div>
+    </aside>
+  </div>
+  <div class="ide-statusbar" id="ideStatusBar">
+    <span><span class="sb-dot" style="background:var(--text-muted);"></span>Chưa mở khoá</span>
+  </div>
+</div>
+<div class="proxy-alert" id="proxyAlertBar"></div>
+
+<div id="modalBg" class="modal-bg">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<div id="commandPaletteModal" class="modal-bg" style="display:none;backdrop-filter:blur(6px);z-index:99999;">
+  <div class="command-palette-card">
+    <div class="command-palette-head">
+      <i class="ti ti-search" style="color:var(--accent);font-size:18px;"></i>
+      <input type="text" id="paletteSearchInput" placeholder="Tìm tài khoản nhanh (hoặc bấm 1, 2, 3 để sao chép)..." autocomplete="off">
+      <span class="palette-kbd">ESC để đóng</span>
+    </div>
+    <div id="paletteResultsList" class="command-palette-list"></div>
+    <div class="command-palette-footer">
+      <span><b>1:</b> Copy User/Email</span>
+      <span><b>2:</b> Copy Mật khẩu</span>
+      <span><b>3:</b> Copy 2FA OTP</span>
+      <span><b>4:</b> Copy Cookie</span>
+      <span><b>5:</b> Copy Token/Key</span>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/storage.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/core.js"></script>
+<script src="js/backup-sync.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/home-log.js"></script>
+<script src="js/vault.js"></script>
+<script src="js/notes.js"></script>
+<script src="js/export.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/status-check.js"></script>
+<script src="js/import-parse.js"></script>
+<script src="js/account-modal.js"></script>
+<script src="js/totp.js"></script>
+<script src="js/shell.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
