@@ -24,7 +24,6 @@ function tickClock(){
     updateTotpColors();
   }
 
-  updateSessionClock();
   checkAutoLogout();
   // expiry status doesn't need per-second precision — only re-scan once a minute
   const currentMinute = Math.floor(Date.now() / 60000);
@@ -34,27 +33,8 @@ function tickClock(){
     checkProxyExpiryNotifications();
   }
 }
-function updateTotalBadge(){
-  const el = document.getElementById('clockTotal');
-  if(!el) return;
-  if(state.key){
-    el.innerHTML = `<i class="ti ti-users"></i>Tổng: ${state.entries.length} tài khoản`;
-  } else {
-    el.innerHTML = `<i class="ti ti-lock"></i>Đang khoá`;
-  }
-}
 
-// ---------- SESSION: login time, active duration, auto-logout ----------
-function formatDuration(ms){
-  const totalSec = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = totalSec % 60;
-  const mm = String(m).padStart(2,'0');
-  const ss = String(s).padStart(2,'0');
-  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
-}
-
+// ---------- SESSION: activity tracking and auto-logout ----------
 function startSession(){
   const now = Date.now();
   state.session.loginTime = now;
@@ -78,8 +58,6 @@ function endSession(){
   state.phoneNotified = new Set();
   state.proxyAlertDismissedIds = new Set();
   clearPersistedSessionKey(); // any lock/logout — explicit, auto, or via switching vault files — always really locks
-  const box = document.getElementById('sessionClock');
-  if(box) box.classList.remove('show');
   const proxyBar = document.getElementById('proxyAlertBar');
   if(proxyBar){ proxyBar.classList.remove('show'); proxyBar.innerHTML = ''; }
   if(proxyExpiryNoticeTimer){ clearTimeout(proxyExpiryNoticeTimer); proxyExpiryNoticeTimer = null; }
@@ -99,24 +77,6 @@ function markActivity(){
 ['click','keydown','touchstart','scroll'].forEach(evt => {
   document.addEventListener(evt, markActivity, { passive: true });
 });
-
-function updateSessionClock(){
-  const box = document.getElementById('sessionClock');
-  if(!box) return;
-  if(!state.key || !state.session.loginTime){
-    box.classList.remove('show');
-    return;
-  }
-  box.classList.add('show');
-  const loginDate = new Date(state.session.loginTime);
-  const hh = String(loginDate.getHours()).padStart(2,'0');
-  const mm = String(loginDate.getMinutes()).padStart(2,'0');
-  const ss = String(loginDate.getSeconds()).padStart(2,'0');
-  const loginEl = document.getElementById('sessionLogin');
-  const activeEl = document.getElementById('sessionActive');
-  if(loginEl) loginEl.textContent = `Đăng nhập lúc ${hh}:${mm}:${ss}`;
-  if(activeEl) activeEl.textContent = formatDuration(Date.now() - state.session.loginTime);
-}
 
 function checkAutoLogout(){
   if(!state.key || !state.session.lastActivity) return;
@@ -188,7 +148,6 @@ function renderProxyAlertBar(dueSoon){
 
 tickClock();
 setInterval(tickClock, 1000);
-updateTotalBadge();
 
 // ---------- AUTOMATIC NETWORK STATUS ----------
 // Network access is always enabled. The local backend is the primary IP source;
@@ -231,14 +190,23 @@ async function fetchMyIp(){
   return null;
 }
 
+// The IP line sits under the app name in the sidebar, which is re-rendered on
+// every navigation, so the latest status is kept here and re-applied by
+// sidebarBrandHtml().
+let networkStatus = { state: 'loading', text: 'Đang kiểm tra mạng...' };
+
+function setNetworkStatus(kind, text){
+  networkStatus = { state: kind, text };
+  const el = document.getElementById('networkIpText');
+  if(el){ el.textContent = text; el.dataset.state = kind; }
+}
+
 async function refreshNetworkStatus(){
-  const ipEl = document.getElementById('networkIpText');
-  if(!ipEl) return;
   if(typeof navigator !== 'undefined' && !navigator.onLine){
-    ipEl.textContent = 'Không có mạng';
+    setNetworkStatus('offline', 'Không có mạng');
     return;
   }
-  ipEl.textContent = 'Đang lấy địa chỉ IP...';
+  setNetworkStatus('loading', 'Đang lấy địa chỉ IP...');
   let ip = null;
   try{
     const response = await fetch(`/hubaccounts-network-status?t=${Date.now()}`, {
@@ -249,22 +217,18 @@ async function refreshNetworkStatus(){
     if(response.ok && result?.online && isValidIpAddress(result.ip)) ip = String(result.ip).trim();
   }catch(e){}
   if(!ip) ip = await fetchMyIp();
-  ipEl.textContent = ip ? `IP: ${ip}` : 'Không có mạng';
+  setNetworkStatus(ip ? 'online' : 'offline', ip ? `IP: ${ip}` : 'Không có mạng');
 }
 
 function initNetworkStatus(){
-  const ipEl = document.getElementById('networkIpText');
-  if(ipEl){
-    ipEl.style.cursor = 'pointer';
-    ipEl.title = 'Bấm để thử lấy lại địa chỉ IP';
-    ipEl.onclick = refreshNetworkStatus;
-  }
+  // Delegated: the sidebar (and this button) is re-rendered on navigation.
+  document.addEventListener('click', ev => {
+    if(ev.target.closest('#networkIpText')) refreshNetworkStatus();
+  });
   refreshNetworkStatus();
   setInterval(refreshNetworkStatus, 60 * 1000);
-  if(typeof window !== 'undefined'){
-    window.addEventListener('online', refreshNetworkStatus);
-    window.addEventListener('offline', () => { const el = document.getElementById('networkIpText'); if(el) el.textContent = 'Không có mạng'; });
-  }
+  window.addEventListener('online', refreshNetworkStatus);
+  window.addEventListener('offline', () => setNetworkStatus('offline', 'Không có mạng'));
 }
 initNetworkStatus();
 
@@ -299,7 +263,7 @@ function headerDateKicker(){
 
 // App identity at the top of the sidebar (same idea as the iNexus sidebar).
 function sidebarBrandHtml(){
-  return `<div class="sidebar-brand"><img src="icon-192.png" alt="" width="40" height="40"><div class="sidebar-brand-text"><b>HubAccounts</b><span>${state.lang === 'en' ? 'Encrypted account vault' : 'Kho tài khoản mã hoá'}</span></div></div>`;
+  return `<div class="sidebar-brand"><img src="icon-192.png" alt="" width="40" height="40"><div class="sidebar-brand-text"><b>HubAccounts</b><span>${state.lang === 'en' ? 'Encrypted account vault' : 'Kho tài khoản mã hoá'}</span><button type="button" class="sidebar-brand-ip" id="networkIpText" data-state="${networkStatus.state}" title="Bấm để lấy lại địa chỉ IP">${escapeHtml(networkStatus.text)}</button></div></div>`;
 }
 
 // Updates the breadcrumb + bottom status bar with real, live info (current tab,

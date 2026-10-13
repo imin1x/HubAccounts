@@ -48,7 +48,6 @@ function proxyFacebookUsageHtml(entry, usageByHost){
 }
 
 function renderVault(){
-  updateTotalBadge();
   if(state.activePlatform === 'home'){
     renderHomeVault();
     return;

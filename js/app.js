@@ -3,8 +3,7 @@
 // loaded in the order listed in HubAccounts.html.
 // ---------- BOOT ----------
 async function renderApp(){
-  updateTotalBadge();
-  let config;
+    let config;
   try{
     config = await loadConfig();
   }catch(e){
@@ -56,18 +55,7 @@ const sidebarToggleBtnEl = document.getElementById('sidebarToggleBtn');
 if(sidebarToggleBtnEl){
   sidebarToggleBtnEl.onclick = () => {
     const sb = document.getElementById('platformBar');
-    const rp = document.getElementById('sidePanel');
-    if(rp) rp.classList.remove('open'); // don't show both drawers at once on a narrow screen
     if(sb) sb.classList.toggle('open');
-  };
-}
-const rightPanelToggleBtnEl = document.getElementById('rightPanelToggleBtn');
-if(rightPanelToggleBtnEl){
-  rightPanelToggleBtnEl.onclick = () => {
-    const rp = document.getElementById('sidePanel');
-    const sb = document.getElementById('platformBar');
-    if(sb) sb.classList.remove('open');
-    if(rp) rp.classList.toggle('open');
   };
 }
 document.querySelectorAll('.ide-lang-btn').forEach(btn => {

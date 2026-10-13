@@ -37,7 +37,6 @@ document.querySelector('meta[name="theme-color"]').content = '#000000';
     </div>
     <button type="button" class="ide-theme-toggle" id="themeToggleBtn" title="Chuyển đổi giao diện Sáng / Tối"><i class="ti ti-sun" id="themeToggleIcon"></i></button>
     <button type="button" class="ide-sidebar-toggle" id="sidebarToggleBtn" title="Menu"><i class="ti ti-menu-2"></i></button>
-    <button type="button" class="ide-rightpanel-toggle" id="rightPanelToggleBtn" title="System / Time / Network"><i class="ti ti-info-circle"></i></button>
   </div>
   <div class="ide-body">
     <aside class="ide-sidebar" id="platformBar"></aside>
@@ -47,21 +46,6 @@ document.querySelector('meta[name="theme-color"]').content = '#000000';
         <div id="app"></div>
       </div>
     </main>
-    <aside class="ide-rightpanel" id="sidePanel">
-      <div class="side-section session-section" id="sessionClock">
-        <div class="code-comment" style="font-size:11px; margin-bottom:6px;">System</div>
-        <div class="session-login" id="sessionLogin">Đăng nhập lúc --:--:--</div>
-        <div class="session-active" id="sessionActive">00:00:00</div>
-        <div class="session-hint">Tự đăng xuất sau 30 phút không hoạt động</div>
-      </div>
-      <div class="side-section">
-        <div class="code-comment" style="font-size:11px; margin-bottom:6px;">Network</div>
-        <div class="network-row">
-          <span class="network-label"><i class="ti ti-wifi"></i> Kết nối Internet</span>
-        </div>
-        <div class="network-ip" id="networkIpText">Đang kiểm tra mạng...</div>
-      </div>
-    </aside>
   </div>
   <div class="ide-statusbar" id="ideStatusBar">
     <span><span class="sb-dot" style="background:var(--text-muted);"></span>Chưa mở khoá</span>
